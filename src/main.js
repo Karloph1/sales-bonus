@@ -47,7 +47,12 @@ function analyzeSalesData(data, options) {
     throw new Error("Некорректные входные данные");
   }
 
-  if (!options || typeof options !== "object") {
+  if (
+    !options ||
+    typeof options !== "object" ||
+    typeof options.calculateRevenue !== "function" ||
+    typeof options.calculateBonus !== "function"
+  ) {
     throw new Error("Некорректные входные опции");
   }
 
@@ -93,8 +98,12 @@ function analyzeSalesData(data, options) {
   sellerStats.sort((a, b) => b.profit - a.profit);
 
   sellerStats.forEach((seller, index) => {
-    seller.bonus = calculateBonusByProfit(index, sellerStats.length, sellerStats[index]);
-    
+    seller.bonus = calculateBonusByProfit(
+      index,
+      sellerStats.length,
+      sellerStats[index],
+    );
+
     seller.top_products = Object.entries(seller.products_sold)
       .map(([sku, data]) => ({
         sku: sku,
@@ -110,7 +119,7 @@ function analyzeSalesData(data, options) {
     revenue: +seller.revenue.toFixed(2),
     profit: +seller.profit.toFixed(2),
     sales_count: seller.sales_count,
-    top_products: seller.top_products, 
-    bonus: +seller.bonus.toFixed(2), 
+    top_products: seller.top_products,
+    bonus: +seller.bonus.toFixed(2),
   }));
 }
