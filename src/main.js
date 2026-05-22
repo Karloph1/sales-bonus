@@ -18,13 +18,13 @@ function calculateSimpleRevenue(purchase, _product) {
  */
 function calculateBonusByProfit(index, total, seller) {
   if (index === 0) {
-    return 0.15;
+    return seller.profit * 0.15;
   } else if (index === 1 || index === 2) {
-    return 0.1;
+    return seller.profit * 0.1;
   } else if (index === total - 1) {
-    return 0;
+    return seller.profit * 0;
   } else {
-    return 0.05;
+    return seller.profit * 0.05;
   }
 }
 
@@ -47,7 +47,7 @@ function analyzeSalesData(data, options) {
     throw new Error("Некорректные входные данные");
   }
 
-  if (typeof options !== "object" || options === null) {
+  if (!options || typeof options !== "object") {
     throw new Error("Некорректные входные опции");
   }
 
@@ -73,10 +73,6 @@ function analyzeSalesData(data, options) {
     seller.sales_count++;
     seller.revenue += record.total_amount;
 
-    const productRevenue = record.items.reduce((result, record) => {
-      return result + record.sale_price * record.quantity;
-    }, 0);
-
     record.items.forEach((item) => {
       const product = productIndex[item.sku];
       const cost = product.purchase_price * item.quantity;
@@ -97,14 +93,12 @@ function analyzeSalesData(data, options) {
   sellerStats.sort((a, b) => b.profit - a.profit);
 
   sellerStats.forEach((seller, index) => {
-    seller.bonus =
-      seller.profit *
-      calculateBonusByProfit(index, sellerStats.length, sellerStats[index]);
+    seller.bonus = calculateBonusByProfit(index, sellerStats.length, sellerStats[index]);
     
     seller.top_products = Object.entries(seller.products_sold)
-      .map((key, value) => ({
-        sku: key,
-        quantity: value,
+      .map(([sku, data]) => ({
+        sku: sku,
+        quantity: data.sales_count,
       }))
       .sort((a, b) => b.quantity - a.quantity)
       .slice(0, 10);
