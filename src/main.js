@@ -17,7 +17,6 @@ function calculateSimpleRevenue(purchase, _product) {
  * @returns {number}
  */
 function calculateBonusByProfit(index, total, seller) {
-  console.log(index, total, seller);
   if (index === 0) {
     return 0.15;
   } else if (index === 1 || index === 2) {
@@ -81,7 +80,7 @@ function analyzeSalesData(data, options) {
     record.items.forEach((item) => {
       const product = productIndex[item.sku];
       const cost = product.purchase_price * item.quantity;
-      const revenue = calculateSimpleRevenue(item, cost);
+      const revenue = calculateSimpleRevenue(item);
       const profit = revenue - cost;
 
       if (!seller.products_sold[item.sku]) {
